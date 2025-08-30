@@ -26,9 +26,15 @@ func parseTraining(data string) (int, string, time.Duration, error) {
 	if err != nil {
 		return 0, "", 0, fmt.Errorf("Ошибка преобразования")
 	}
+	if numSteps <= 0 {
+		return 0, "", 0, fmt.Errorf("Неверное количество")
+	}
 	t, err := time.ParseDuration(slice[2])
 	if err != nil {
 		return 0, "", 0, fmt.Errorf("Ошибка при парсинге времени")
+	}
+	if t <= 0 {
+		return 0, "", 0, fmt.Errorf("Неверная продолжительность")
 	}
 	return numSteps, slice[1], t, nil
 }
@@ -58,11 +64,7 @@ func TrainingInfo(data string, weight, height float64) (string, error) {
 		log.Println(err)
 	}
 
-	pattern := `Тип тренировки: %s
-        Длительность: %.2f ч.
-        Дистанция: %.2f км.
-        Скорость: %.2f км/ч.
-        Сожгли калорий: %.2f`
+	pattern := "Тип тренировки: %s\nДлительность: %.2f ч.\nДистанция: %.2f км.\nСкорость: %.2f км/ч\nСожгли калорий: %.2f\n"
 
 	switch str {
 	case "Ходьба":
@@ -75,7 +77,7 @@ func TrainingInfo(data string, weight, height float64) (string, error) {
 
 		return fmt.Sprintf(pattern, str, t.Hours(), ditanceWalking, speedWalking, caloriesWalking), nil
 	case "Бег":
-		caloriesRunning, err := WalkingSpentCalories(numSteps, weight, height, t)
+		caloriesRunning, err := RunningSpentCalories(numSteps, weight, height, t)
 		if err != nil {
 			log.Println(err)
 		}
